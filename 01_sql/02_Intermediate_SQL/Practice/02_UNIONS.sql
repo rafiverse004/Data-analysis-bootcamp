@@ -1,202 +1,336 @@
--- Problem 1
-"Display all employee first names from both tables without duplicates.
+Question 1
 
-Tables:
+Create a list containing all employee first names from both:
 
-employee_demographics
-employee_salary"
+    employee_demographics
+    employee_salary
 
+Return: first_name
+Use UNION.
+
+-- solution
 SELECT first_name
 FROM employee_demographics
+
 UNION
+
 SELECT first_name
 FROM employee_salary
 ;
 
 
 
+----------------------------------------------------------------------------------------------------
 
+Question 2
 
--- Problem 2
-"Display all employee first names from both tables including duplicates."
+Create one list containing:
 
-SELECT first_name
+    first_name
+    last_name
+
+from both tables.
+Use: UNION
+
+Dont use SELECT *.
+
+-- solution
+SELECT first_name, last_name
 FROM employee_demographics
+
+UNION
+
+SELECT first_name, last_name
+FROM employee_salary
+;
+
+
+----------------------------------------------------------------------------------------------------
+
+Question 3
+
+Repeat Question 2, but use:
+
+    UNION ALL
+
+Then compare the number of rows returned with Question 2.
+
+Think: Why are the results different?
+
+-- solution
+SELECT first_name, last_name
+FROM employee_demographics
+
 UNION ALL
-SELECT first_name
+
+SELECT first_name, last_name
 FROM employee_salary
 ;
 
 
 
+----------------------------------------------------------------------------------------------------
 
+Question 4
 
--- Problem 3
-"Display all employee IDs from both tables in ascending order."
+Using UNION, combine the following two employee lists:
 
-SELECT employee_id
-FROM employee_demographics
-UNION
-SELECT employee_id
-FROM employee_salary
-ORDER BY employee_id
-;
+    List A: employees older than 30
 
+    List B: employees earning more than 50,000
 
-
-
-
--- Problem 4
-"Display:
-
-    - Employees whose age is greater than 35 from employee_demographics
-    - Employees whose salary is greater than 60000 from employee_salary
-
-Show:
+Return:
 
     employee_id
     first_name
+    last_name
 
-Combine the results."
+You should get each employee only once, even if they satisfy both conditions.
 
-SELECT employee_id, first_name
+-- solution
+SELECT
+    employee_id,
+    first_name,
+    last_name
 FROM employee_demographics
-WHERE age > 35
+WHERE age > 30
+
 UNION
-SELECT employee_id, first_name
+
+SELECT
+    employee_id,
+    first_name,
+    last_name
+FROM employee_salary
+WHERE salary > 50000
+;
+
+
+
+----------------------------------------------------------------------------------------------------
+
+Question 5
+Do the same thing using UNION ALL.
+
+Then ask yourself:
+
+    Why might the same employee appear more than once?
+    ANS: Because Union give UNIQUE but union all give all matches
+
+-- solution
+SELECT
+    employee_id,
+    first_name,
+    last_name
+FROM employee_demographics
+WHERE age > 30
+
+UNION ALL
+
+SELECT
+    employee_id,
+    first_name,
+    last_name
+FROM employee_salary
+WHERE salary > 50000
+;
+
+
+
+----------------------------------------------------------------------------------------------------
+
+Question 6
+
+Create a single list of employees who meet either condition:
+
+    Age < 30
+    Age > 50
+
+Return:
+
+    employee_id
+    first_name
+    last_name
+    age
+Use UNION.
+
+-- solution
+SELECT
+    employee_id,
+    first_name,
+    last_name,
+    age
+FROM employee_demographics
+WHERE age < 30
+
+UNION
+
+SELECT
+    employee_id,
+    first_name,
+    last_name,
+    age
+FROM employee_demographics
+WHERE age > 50
+;
+
+
+
+----------------------------------------------------------------------------------------------------
+
+Question 7
+Create a single list containing employees who either:
+    earn less than 40,000
+    OR earn more than 70,000
+
+Return:
+    employee_id
+    first_name
+    last_name
+    salary
+Use UNION.
+
+-- solution
+SELECT
+    employee_id,
+    first_name,
+    last_name,
+    salary
+FROM employee_salary
+WHERE salary < 40000
+
+UNION
+
+SELECT
+    employee_id,
+    first_name,
+    last_name,
+    salary
+FROM employee_salary
+WHERE salary > 70000
+;
+
+
+
+----------------------------------------------------------------------------------------------------
+
+Question 8
+
+Management wants a list of employees who are either:
+
+    Group 1: Female employees OR
+
+    Group 2: Employees earning more than 70,000.
+
+Return:
+    employee_id
+    first_name
+    last_name
+Use UNION.
+
+Make sure employees satisfying both conditions dont appear twice.
+
+-- solution
+SELECT
+    employee_id,
+    first_name,
+    last_name
+FROM employee_demographics
+WHERE gender = 'Female'
+
+UNION
+
+SELECT
+    employee_id,
+    first_name,
+    last_name
+FROM employee_salary
+WHERE salary > 70000
+;
+
+
+
+----------------------------------------------------------------------------------------------------
+
+Question 9 ⭐
+
+Create two groups:
+    Group 1: Employees younger than 30
+
+    Group 2: Employees with salary greater than 60,000
+
+Return:
+    employee_id
+    first_name
+    last_name
+
+Add another column called: source that identifies where the employee came from:
+    'Young'
+    'High Salary'
+
+Youll need to think about how each SELECT in a UNION can create a constant value.
+
+-- solution
+SELECT
+    employee_id,
+    first_name,
+    last_name,
+    'Young' AS source
+FROM employee_demographics
+WHERE age < 30
+
+UNION
+
+SELECT
+    employee_id,
+    first_name,
+    last_name,
+    'High Salary' AS source
 FROM employee_salary
 WHERE salary > 60000
 ;
 
 
 
+----------------------------------------------------------------------------------------------------
 
+Question 10
 
---Problem 5
-"Show all female employees from employee_demographics together with employees earning more than 80000 from employee_salary.
+Create a single employee list containing:
 
-Display:
+    Group A Employees younger than 30
 
-first_name
-last_name
-
-Remove duplicates."
-
-SELECT first_name, last_name
-FROM employee_demographics
-WHERE gender = 'Female'
-UNION
-SELECT first_name, last_name
-FROM employee_salary
-WHERE salary > 80000
-;
-
-
-
-
-
--- Problem 6
-
-"Display all employees who satisfy either:
-
-Age < 30
-Salary > 70000
+    Group B Employees older than 40
 
 Return:
+    employee_id
+    first_name
+    last_name
+    age
+    employee_group
 
-employee_id
-first_name"
+Where:
+    Group A → 'Young'
+    Group B → 'Older'
+Use UNION.
 
-SELECT employee_id, first_name
+-- solution
+SELECT
+    employee_id,
+    first_name,
+    last_name,
+    age,
+    'Young' AS employee_group
 FROM employee_demographics
 WHERE age < 30
+
 UNION
-SELECT employee_id, first_name
-FROM employee_salary
-WHERE salary > 70000
-;
-
-
-
-
-
--- Problem 7
-
-"Create a report like this:
-
-John     Senior Employee
-Alice    High Earner
-Bob      Young Employee
-
-Rules:
-
-Age > 40 → Senior Employee
-Salary > 70000 → High Earner
-Age < 25 → Young Employee
-
-Use multiple UNIONs."
 
 SELECT
-    first_name,
-    'Senior Employee' AS Label
-FROM employee_demographics
-WHERE age > 40
-UNION
-SELECT
-    first_name,
-    'Young Employee' AS Label
-FROM employee_demographics
-WHERE age < 25
-UNION
-SELECT
-    first_name,
-    'High Earner' AS Label
-FROM employee_salary
-WHERE salary > 70000
-;
-
-
-
-
-
--- Problem 8
-
-"Return
-
-first_name
-last_name
-status
-
-Where
-
-Male & Age > 35 → Experienced Male
-Female & Age > 35 → Experienced Female
-Salary > 90000 → Executive
-
-Sort by
-
-last_name
-first_name"
-
-SELECT
+    employee_id,
     first_name,
     last_name,
-    'Experienced Male' AS Status
+    age,
+    'Older' AS employee_group
 FROM employee_demographics
-WHERE gender = 'Male' AND age > 35
-UNION
-SELECT
-    first_name,
-    last_name,
-    'Experienced Female' AS Status
-FROM employee_demographics
-WHERE gender = 'female' AND age > 35
-UNION
-SELECT
-    first_name,
-    last_name,
-    'Executive' AS Status
-FROM employee_salary
-WHERE salary > 90000
-ORDER BY last_name, first_name
-;
+WHERE age > 40;

@@ -1,23 +1,32 @@
-SELECT *
-FROM employee_demographics
-;
+-- Active: 1783781823929@@127.0.0.1@3306@parks_and_recreation
+SELECT * FROM employee_demographics;
+
+SELECT * FROM employee_salary;
 
 
-SELECT *
-FROM employee_salary
-;
 
+-- Question 1 — Basic INNER JOIN
 
-SELECT *
-FROM parks_departments
-;
+Combine the two tables using employee_id.
 
+Return:
 
-#1.Display each employee's first name, last name, occupation, and salary.
-SELECT demo.first_name,
-        demo.last_name,
-        sal.occupation,
-        sal.salary
+    first_name
+    last_name  
+    age
+    gender
+    occupation
+    salary
+Use an INNER JOIN.
+
+-- solution
+SELECT
+    demo.first_name,
+    demo.last_name,
+    demo.age,
+    demo.gender,
+    sal.occupation,
+    sal.salary
 FROM employee_demographics AS demo
 JOIN employee_salary AS sal
     ON demo.employee_id = sal.employee_id
@@ -25,10 +34,27 @@ JOIN employee_salary AS sal
 
 
 
-#2.Display each employee's first name, gender, and occupation.
-SELECT demo.first_name,
-        demo.gender,
-        sal.occupation
+----------------------------------------------------------------------------------------------------
+
+Question 2 — Select specific columns
+
+Join the tables and return:
+
+    employee_id
+    first_name
+    last_name
+    age
+    salary
+
+Only return employees who exist in both tables.
+
+-- solution
+SELECT
+    demo.employee_id,
+    demo.first_name,
+    demo.last_name,
+    demo.age,
+    sal.salary
 FROM employee_demographics AS demo
 JOIN employee_salary AS sal
     ON demo.employee_id = sal.employee_id
@@ -36,8 +62,30 @@ JOIN employee_salary AS sal
 
 
 
-#3.Show all employees whose salary is greater than 60,000.
-SELECT *
+----------------------------------------------------------------------------------------------------
+
+Question 3 — Find high earners
+
+Join the two tables and return employees whose salary is greater than 60,000.
+
+Return:
+
+    first_name
+    last_name
+    age
+    occupation
+    salary
+Use:
+
+    JOIN + WHERE
+
+-- solution
+SELECT
+    demo.first_name,
+    demo.last_name,
+    demo.age,
+    sal.occupation,
+    sal.salary
 FROM employee_demographics AS demo
 JOIN employee_salary AS sal
     ON demo.employee_id = sal.employee_id
@@ -46,11 +94,68 @@ WHERE sal.salary > 60000
 
 
 
-#4.Display each employees full name (first and last name) along with their salary, sorted from highest salary to lowest.
-SELECT demo.first_name,
-        demo.last_name,
-        CONCAT(demo.first_name, ' ', demo.last_name) AS Fullname,
-        sal.salary
+----------------------------------------------------------------------------------------------------
+
+Question 4 — Female employees
+
+Join the two tables and find all female employees.
+
+Return:
+
+    first_name
+    last_name
+    age
+    occupation
+    salary
+Use:
+
+    JOIN + WHERE
+
+-- solution
+SELECT
+    demo.first_name,
+    demo.last_name,
+    demo.age,
+    sal.occupation,
+    sal.salary
+FROM employee_demographics AS demo
+JOIN employee_salary AS sal
+    ON demo.employee_id = sal.employee_id
+WHERE demo.gender = 'Female'
+;
+
+
+
+----------------------------------------------------------------------------------------------------
+
+Question 5 — Employee information
+
+Join the tables and return all employees with:
+
+    employee_id
+    first_name
+    last_name
+    age
+    gender
+    occupation
+    salary
+    dept_id
+
+Sort them by salary from highest to lowest.
+Use:
+
+    JOIN + ORDER BY
+
+-- solution
+SELECT
+    demo.employee_id,
+    demo.first_name,
+    demo.last_name,
+    demo.age,
+    demo.gender,
+    sal.occupation,
+    sal.salary,
+    sal.dept_id
 FROM employee_demographics AS demo
 JOIN employee_salary AS sal
     ON demo.employee_id = sal.employee_id
@@ -59,20 +164,62 @@ ORDER BY sal.salary DESC
 
 
 
-#5.Find the average salary for each gender.
-SELECT demo.gender,
-        AVG(sal.salary) AS AverageSalary
+----------------------------------------------------------------------------------------------------
+
+Question 6 — Salary range
+
+Find employees whose salary is between 40,000 and 70,000, inclusive.
+
+Return:
+    first_name
+    last_name
+    occupation
+    salary
+Use:
+
+    JOIN + WHERE + BETWEEN
+
+-- solution
+SELECT
+    demo.first_name,
+    demo.last_name,
+    sal.occupation,
+    sal.salary
 FROM employee_demographics AS demo
 JOIN employee_salary AS sal
     ON demo.employee_id = sal.employee_id
-GROUP BY demo.gender
+WHERE sal.salary BETWEEN 40000 AND 70000
 ;
 
 
 
-#6.Display all employees from employee_demographics along with their occupation, even if they don't have a salary record.
-SELECT CONCAT(demo.first_name, ' ', demo.last_name) AS FullName,
-    sal.occupation
+----------------------------------------------------------------------------------------------------
+
+Question 7 — LEFT JOIN
+
+Using employee_demographics as the left table, perform a LEFT JOIN with employee_salary.
+
+Return:
+
+    employee_id
+    first_name
+    last_name
+    age
+    salary
+    occupation
+
+Your goal is to understand:
+
+    What happens to an employee who exists in demographics but doesnt have a matching salary record?
+
+-- solution
+SELECT
+    demo.employee_id,
+    demo.first_name,
+    demo.last_name,
+    demo.age,
+    sal.occupation,
+    sal.salary
 FROM employee_demographics AS demo
 LEFT JOIN employee_salary AS sal
     ON demo.employee_id = sal.employee_id
@@ -80,16 +227,24 @@ LEFT JOIN employee_salary AS sal
 
 
 
-#7
-"
-Find employees who do not have a matching salary record.
+----------------------------------------------------------------------------------------------------
 
-Hint: Their salary columns will be NULL.
-"
+Question 8 — Find unmatched employees
 
-SELECT demo.first_name,
-    demo.last_name,
-    sal.salary
+Using a LEFT JOIN, find employees who exist in: employee_demographics but do not have a matching record in: employee_salary.
+
+Return:
+    employee_id
+    first_name
+    last_name
+
+Youll need to check for a NULL value from the salary table.
+
+-- solution
+SELECT
+    demo.employee_id,
+    demo.first_name,
+    demo.last_name
 FROM employee_demographics AS demo
 LEFT JOIN employee_salary AS sal
     ON demo.employee_id = sal.employee_id
@@ -98,318 +253,217 @@ WHERE sal.salary IS NULL
 
 
 
+----------------------------------------------------------------------------------------------------
 
-#8.Display all employees and their salary. Sort the results by salary from highest to lowest.
-SELECT CONCAT(demo.first_name, ' ', demo.last_name) AS FullName,
-    sal.salary
-FROM employee_demographics AS demo
-JOIN employee_salary AS sal
-    ON demo.employee_id = sal.employee_id
-ORDER BY sal.salary DESC
-;
+Question 9 — Reverse the LEFT JOIN
 
+Now use employee_salary as the left table and employee_demographics as the right table.
 
+Find employees who exist in employee_salary but dont have a matching record in employee_demographics.
 
-#9
-"
-Count how many employees have a salary record and how many do not.
+Return:
+    employee_id
+    first_name
+    last_name
+    occupation
+    salary
 
-(This one is a little more challenging.)
-"
+This is a very useful exercise because your database actually contains an unmatched record.
 
+-- solution
 SELECT
-    COUNT(sal.salary) AS WithSalary,
-    COUNT(*) - COUNT(sal.salary) AS WithoutSalary
-FROM employee_demographics demo
-LEFT JOIN employee_salary sal
-    ON demo.employee_id = sal.employee_id
-;
-
-
-
-#10
-"
-Display every employee's first name, last name, occupation, and salary. Replace missing salaries with 0.
-
-(You may need IFNULL() or COALESCE(), depending on your SQL database.)
-"
-
-SELECT demo.first_name,
-    demo.last_name,
-    sal.occupation,
-    IFNULL(sal.salary, 0) AS Salary
-FROM employee_demographics AS demo
-JOIN employee_salary AS sal
-    ON demo.employee_id = sal.employee_id
-;
-
-
-
-#11.Display all salary records, even if there is no matching employee in employee_demographics.
-SELECT *
-FROM employee_salary AS sal
-RIGHT JOIN employee_demographics AS demo
-    ON sal.employee_id = demo.employee_id
-;
-
-
-
-#12.Find salary records that do not have a matching employee.
-SELECT *
-FROM employee_demographics AS demo
-RIGHT JOIN employee_salary AS sal
-    ON sal.employee_id = demo.employee_id
-WHERE demo.employee_id IS NULL
-;
-
-
-
-#13.Display every occupation and salary, along with the employee's first and last name if available.
-SELECT
+    sal.employee_id,
     demo.first_name,
     demo.last_name,
     sal.occupation,
     sal.salary
 FROM employee_salary AS sal
 LEFT JOIN employee_demographics AS demo
-    ON sal.employee_id = demo.employee_id
+    ON demo.employee_id = sal.employee_id
+WHERE demo.employee_id IS NULL
 ;
 
 
 
-#14
-"
-Recreate the Secret Santa pairing.
+----------------------------------------------------------------------------------------------------
 
-Each employee gives a gift to the employee whose employee_id is 1 greater than theirs.
-"
+Question 10 — Average salary of employees
 
+Join the two tables and calculate the average salary of employees.
+
+Return just:
+
+    average_salary
+
+Dont worry about GROUP BY yet.
+
+-- solution
 SELECT
-    demo.employee_id AS SecretSanta,
-    demo.first_name AS SantaFirstName,
-    demo.last_name AS SantaLastName,
-    sal.employee_id AS LuckyPerson,
-    sal.first_name AS LuckyPersonFirstName,
-    sal.last_name AS LuckyPersonLastName
+    AVG(sal.salary) AS "Average Salary"
+FROM employee_demographics as demo
+JOIN employee_salary as sal
+    ON demo.employee_id = sal.employee_id
+;
+
+
+
+----------------------------------------------------------------------------------------------------
+
+Question 11 — Gender salary analysis
+
+Join the two tables and calculate the average salary for each gender.
+
+Expected structure:
+
+    gender       average_salary
+    -----------  -------------
+    Female       ?
+    Male         ?
+
+Youll need:
+
+    JOIN + GROUP BY + AVG
+
+-- solution
+SELECT
+    demo.gender,
+    AVG(sal.salary) AS "Average Salary"
+FROM employee_demographics as demo
+JOIN employee_salary as sal
+    ON demo.employee_id = sal.employee_id
+GROUP BY demo.gender
+;
+
+
+
+----------------------------------------------------------------------------------------------------
+
+Question 12 — Gender salary comparison
+
+Find:
+    Number of male employees
+    Number of female employees
+    Average male salary
+    Average female salary
+
+Return everything in one result.
+
+This is your first more realistic analyst-style JOIN problem.
+
+-- solution
+SELECT
+    COUNT(CASE WHEN demo.gender = 'Male' THEN 1 END) AS male_employees,
+    COUNT(CASE WHEN demo.gender = 'Female' THEN 1 END) AS female_employees,
+    AVG(CASE WHEN demo.gender = 'Male' THEN sal.salary END) AS average_male_salary,
+    AVG(CASE WHEN demo.gender = 'Female' THEN sal.salary END) AS average_female_salary
 FROM employee_demographics AS demo
 JOIN employee_salary AS sal
-    ON demo.employee_id + 1 = sal.employee_id
+    ON demo.employee_id = sal.employee_id
 ;
 
 
 
-#15
-"
-Show only the first names of both the Secret Santa and the person receiving the gift.
-"
+----------------------------------------------------------------------------------------------------
 
+Question 13 — Department salary analysis
+
+Using employee_salary, calculate:
+
+    Number of employees in each dept_id
+    Average salary for each dept_id
+    Highest salary for each dept_id
+
+Expected structure:
+
+    dept_id | employee_count | avg_salary | highest_salary
+
+You dont actually need the demographics table for this one.
+
+Thats intentional: a good analyst knows when a JOIN is unnecessary.
+
+-- solution
 SELECT
-    demo.first_name AS SantaFirstName,
-    sal.first_name AS LuckyPersonFirstName
-FROM employee_demographics AS demo
-JOIN employee_salary AS sal
-    ON demo.employee_id + 1 = sal.employee_id
+    dept_id,
+    COUNT(*) AS employee_count,
+    AVG(salary) AS avg_salary,
+    MAX(salary) AS highest_salary
+FROM employee_salary
+GROUP BY dept_id
 ;
 
 
 
-#16
-"
-Modify the Secret Santa query so that only employees with an assigned partner are shown.
+----------------------------------------------------------------------------------------------------
 
-(Think about what happens to the last employee.)
-"
+Question 14 — Employee comparison
 
+Join the two tables and find employees who are:
+
+Older than 40, Salary greater than 50,000
+
+Return:
+
+    first_name
+    last_name
+    age
+    occupation
+    salary
+
+-- solution
 SELECT
-    demo.first_name AS SantaFirstName,
-    sal.first_name AS LuckyPersonFirstName
-FROM employee_demographics AS demo
-INNER JOIN employee_salary AS sal
-    ON demo.employee_id + 1 = sal.employee_id
+    demo.first_name,
+    demo.last_name,
+    demo.age,
+    sal.occupation,
+    sal.salary
+FROM employee_demographics as demo
+JOIN employee_salary as sal
+    ON demo.employee_id = sal.employee_id
+WHERE demo.age > 40 AND sal.salary > 50000
 ;
 
 
 
-#17
-"
-Display each employee's:
+----------------------------------------------------------------------------------------------------
 
-First name
-Last name
-Occupation
-Salary
-Department name
-"
+Question 15 ⭐ Final JOIN Challenge
 
+Management wants a basic employee report.
+
+Create a query that combines information from both tables and returns:
+
+    employee_id
+    first_name
+    last_name
+    age
+    gender
+    occupation
+    salary
+    dept_id
+
+Requirements:
+
+    Include only employees present in both tables.
+    Show only employees earning more than 40,000.
+    Sort by salary from highest to lowest.
+
+This combines:
+
+    INNER JOIN + WHERE + ORDER BY
+
+-- solution
 SELECT
-    sal.first_name,
-    sal.last_name,
+    demo.employee_id,
+    demo.first_name,
+    demo.last_name,
+    demo.age,
+    demo.gender,
     sal.occupation,
     sal.salary,
-    dept.department_name
-FROM employee_salary AS sal
-LEFT JOIN parks_departments AS dept
-    ON sal.dept_id = dept.department_id
+    sal.dept_id
+FROM employee_demographics as demo
+INNER JOIN employee_salary as sal
+    ON demo.employee_id = sal.employee_id
+WHERE sal.salary > 40000
+ORDER BY sal.salary DESC
 ;
-
-
-
-#18.Find the average salary for each department.
-SELECT
-    dept.department_name,
-    AVG(sal.salary) AS AverageSalary
-FROM employee_salary AS sal
-JOIN parks_departments AS dept
-    ON sal.dept_id = dept.department_id
-GROUP BY dept.department_name
-;
-
-
-
-#19
-"
-Display all employees who work in the Parks & Recreation department.
-
-(Use the department name, not the department ID.)
-"
-
-SELECT *
-FROM employee_salary AS sal
-JOIN parks_departments AS pd
-    ON sal.dept_id = pd.department_id
-WHERE pd.department_name = "Parks and Recreation"
-;
-"WHERE → Filter rows
-HAVING → Filter groups (after GROUP BY)"
-
-
-
-#20
-"
-Find the department that has the Highest average salary.
-
-Display:
-
-Department name
-Average salary
-
-Sort from highest to lowest.
-
-"
-
-SELECT
-    pd.department_name,
-    AVG(es.salary) AS AverageSalary
-FROM employee_salary AS es
-JOIN parks_departments AS pd
-    ON es.dept_id = pd.department_id
-GROUP BY pd.department_name
-ORDER BY AVG(es.salary) DESC
-;
-
-
-
-#21.Find the top 5 highest-paid employees, including their department name.
-SELECT
-    es.first_name,
-    es.last_name,
-    es.salary,
-    pd.department_name
-FROM employee_salary AS es
-JOIN parks_departments AS pd
-    ON es.dept_id = pd.department_id
-ORDER BY es.salary DESC
-LIMIT 5
-;
-
-
-
-
-
-#22.For each department, count the number of employees.
-SELECT
-    pd.department_name,
-    COUNT(*) AS TotalEmployees
-FROM employee_salary AS es
-JOIN parks_departments AS pd
-    ON es.dept_id = pd.department_id
-GROUP BY pd.department_name
-;
-
-
-
-
-#23.Find employees who earn more than the average salary of all employees. May need sub-query
-SELECT *
-FROM employee_salary AS es
-JOIN parks_departments AS pd
-    ON es.dept_id = pd.department_id
-WHERE es.salary > 
-    (
-        SELECT AVG(es.salary)
-        FROM employee_salary AS es
-    )
-;
-
-
-
-
-
-#24
-"
-Find the employee(s) with the highest salary.
-
-(Try solving this without using LIMIT.) May need Sub-query
-"
-
-SELECT *
-FROM employee_salary
-WHERE salary = 
-    (
-        SELECT MAX(salary)
-        FROM employee_salary
-    )
-;
-
-
-
-
-
-#25
-"
-For each department, display:
-
-Department name
-Number of employees
-Minimum salary
-Maximum salary
-Average salary
-"
-
-SELECT
-    pd.department_name,
-    COUNT(*),
-    MIN(es.salary),
-    MAX(es.salary),
-    AVG(es.salary)
-FROM employee_salary AS es
-JOIN parks_departments AS pd
-    ON es.dept_id = pd.department_id
-GROUP BY pd.department_name
-;
-
-
-
-
-
-#Aggregate function remember this
-"
-✅ If I use an aggregate function AND I also select normal columns, then I must GROUP BY those normal columns.
-
-Aggregate only?
-→ No GROUP BY needed.
-
-Aggregate + normal column?
-→ GROUP BY the normal column.
-
-"

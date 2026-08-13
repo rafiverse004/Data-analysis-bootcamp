@@ -88,7 +88,7 @@ SELECT
     demo.last_name,
     sal.salary
 FROM employee_demographics AS demo
-JOIN employee_salary sal
+JOIN employee_salary AS sal
     ON demo.employee_id = sal.employee_id
 ;
 
