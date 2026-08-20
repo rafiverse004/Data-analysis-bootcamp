@@ -14,6 +14,14 @@ Use:
     ROW_NUMBER()
 
 -- solution
+SELECT
+    employee_id,
+    first_name,
+    last_name,
+    salary,
+    ROW_NUMBER() OVER(ORDER BY salary DESC) AS 'row_number'
+FROM employee_salary
+;
 
 
 
@@ -34,6 +42,13 @@ Use:
     RANK()
 
 -- solution
+SELECT
+    first_name,
+    last_name,
+    salary,
+    RANK() OVER(ORDER BY salary DESC) AS salary_rank
+FROM employee_salary
+;
 
 
 
@@ -50,6 +65,13 @@ Then compare the result with RANK().
 Think about what happens if two employees have the same salary.
 
 -- solution
+SELECT
+    first_name,
+    last_name,
+    salary,
+    DENSE_RANK() OVER(ORDER BY salary DESC) AS salary_rank
+FROM employee_salary
+;
 
 
 
@@ -66,7 +88,6 @@ Return:
     dept_id
     salary
     department_rank
-
 Use:
 
     RANK() OVER (
@@ -75,6 +96,17 @@ Use:
     )
 
 -- solution
+SELECT
+    first_name,
+    last_name,
+    dept_id,
+    salary,
+    RANK() OVER(
+        PARTITION BY dept_id
+        ORDER BY salary DESC
+    ) AS salary_rank
+FROM employee_salary
+;
 
 
 
@@ -95,6 +127,34 @@ Return:
 Dont filter to rank 1 yet. Just display the ranking.
 
 -- solution
+SELECT
+    first_name,
+    last_name,
+    dept_id,
+    salary,
+    RANK() OVER(
+        PARTITION BY dept_id
+        ORDER BY salary DESC
+    ) AS salary_rank
+FROM employee_salary
+;
+
+WITH ranked_employees AS (
+    SELECT
+        first_name,
+        last_name,
+        dept_id,
+        salary,
+        RANK() OVER(
+            PARTITION BY dept_id
+            ORDER BY salary DESC
+        ) AS department_rank
+    FROM employee_salary
+)
+SELECT *
+FROM ranked_employees
+WHERE department_rank = 1
+;
 
 
 
@@ -116,6 +176,13 @@ Use:
     AVG() OVER(...)
 
 -- solution
+SELECT
+    first_name,
+    last_name,
+    dept_id,
+    salary,
+    AVG(salary) OVER(PARTITION BY dept_id) AS department_average
+FROM employee_salary
 
 
 
@@ -137,6 +204,14 @@ Where:
 Use a window function to calculate the average.
 
 -- solution
+SELECT
+    first_name,
+    last_name,
+    salary,
+    AVG(salary) OVER() AS average_salary,
+    salary - AVG(salary) OVER() AS salary_differece
+FROM employee_salary
+;
 
 
 
@@ -158,6 +233,15 @@ Use:
     SUM() OVER(...)
 
 -- solution
+SELECT
+    first_name,
+    last_name,
+    salary,
+    SUM(salary) OVER(
+        ORDER BY employee_id
+    ) AS running_total
+FROM employee_salary
+;
 
 
 
@@ -181,6 +265,18 @@ Youll need both:
     ORDER BY
 
 -- solution
+SELECT
+    employee_id,
+    first_name,
+    last_name,
+    dept_id,
+    salary,
+    SUM(salary) OVER(
+        PARTITION BY dept_id
+        ORDER BY employee_id
+    ) AS department_running_salary
+FROM employee_salary
+;
 
 
 
@@ -203,6 +299,13 @@ Use:
     LAG()
 
 -- solution
+SELECT
+    first_name,
+    last_name,
+    salary,
+    LAG(salary) OVER(ORDER BY salary) AS previous_salary
+FROM employee_salary
+;
 
 
 
@@ -227,6 +330,15 @@ Return:
     salary_difference
 
 -- solution
+SELECT
+    first_name,
+    last_name,
+    salary,
+    LAG(salary) OVER(ORDER BY salary) AS previous_salary,
+    salary - LAG(salary) OVER(ORDER BY salary) AS salary_difference
+
+FROM employee_salary
+;
 
 
 
@@ -248,6 +360,12 @@ Use:
     LEAD()
 
 -- solution
+SELECT
+    employee_id,
+    first_name,
+    LEAD(first_name) OVER(ORDER BY employee_id) AS next_employee
+FROM employee_demographics
+;
 
 
 
@@ -269,6 +387,22 @@ Use a window function to rank them.
 This is one of the most important real-world window-function patterns.
 
 -- solution
+WITH ranked_employees AS (
+    SELECT
+        first_name,
+        last_name,
+        dept_id,
+        salary,
+        ROW_NUMBER() OVER(
+            PARTITION BY dept_id
+            ORDER BY salary DESC
+        ) AS department_rank
+    FROM employee_salary
+)
+SELECT *
+FROM ranked_employees
+WHERE department_rank <= 3
+;
 
 
 
@@ -298,6 +432,20 @@ For this one youll combine:
     Window Function + CASE
 
 -- solution
+SELECT
+    first_name,
+    last_name,
+    dept_id,
+    salary,
+    AVG(salary) OVER(PARTITION BY dept_id) AS department_average,
+    salary - AVG(salary) OVER(PARTITION BY dept_id) AS salary_difference,
+    CASE 
+        WHEN salary > AVG(salary) OVER(PARTITION BY dept_id) THEN 'Above Average'
+        WHEN salary < AVG(salary) OVER(PARTITION BY dept_id) THEN 'Below Average'
+        ELSE 'At Average'
+    END AS salary_status
+FROM employee_salary
+;
 
 
 
@@ -321,6 +469,15 @@ Think about:
     SUM(salary) OVER (PARTITION BY dept_id)
 
 -- solution
+SELECT
+    first_name,
+    last_name,
+    dept_id,
+    salary,
+    SUM(salary) OVER(PARTITION BY dept_id) AS department_total_salary,
+    salary / SUM(salary) OVER(PARTITION BY dept_id) * 100 AS salary_percentage
+FROM employee_salary
+;
 
 
 
@@ -349,6 +506,29 @@ Where:
 You should be able to solve this using window functions without subqueries.
 
 -- solution
+SELECT
+    employee_id,
+    first_name,
+    last_name,
+    occupation,
+    dept_id,
+    salary,
+
+    AVG(salary) OVER(
+        PARTITION BY dept_id
+    ) AS department_average,
+
+    RANK() OVER(
+        PARTITION BY dept_id
+        ORDER BY salary DESC
+    ) AS department_rank,
+
+    salary - AVG(salary) OVER(
+        PARTITION BY dept_id
+    ) AS salary_difference
+
+FROM employee_salary
+;
 
 
 
@@ -368,5 +548,23 @@ Return only:
 "You may need to combine a window function with another SQL technique to filter the ranking."
 
 -- solution
-
-
+WITH ranked_employees AS (
+    SELECT
+        first_name,
+        last_name,
+        dept_id,
+        salary,
+        RANK() OVER(
+            PARTITION BY dept_id
+            ORDER BY salary DESC
+        ) AS department_rank
+    FROM employee_salary
+)
+SELECT
+    first_name,
+    last_name,
+    dept_id,
+    salary
+FROM ranked_employees
+WHERE department_rank = 1
+;
